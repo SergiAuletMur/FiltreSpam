@@ -63,7 +63,7 @@ public class FiltreSpam {
         }
         
         //Calcular estadistiques i mostrar-les (Recopilar els comptadors i mostrar-los)
-        mostrarEstaidistiques();
+        mostrarEstadistiques();
     }
 
     private Integer calcularProbSpam(File f) throws FileNotFoundException{
@@ -91,7 +91,7 @@ public class FiltreSpam {
         return prob;
     }
     
-    private void mostrarEstaidistiques(){
+    private void mostrarEstadistiques(){
         
     }
 }
