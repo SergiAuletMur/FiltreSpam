@@ -5,17 +5,38 @@
  */
 package filtrespam;
 
+import java.util.ArrayList;
+import java.util.*;
+
 
 /**
  *
  * @author Oulet
  */
 public class Missatge {
-    public String paraula;
-    public Integer nCops;
+ public HashMap<String, Paraula> _paraules = new HashMap<String, Paraula>();
+ 
+ public Missatge(){
+     
+ }
+ 
+    public void afegirTotal(String p){
+        Paraula z = new Paraula();
+        if(!_paraules.containsKey(p)){
+            _paraules.put(p,z);
+        }
+        else{
+            Paraula aux = _paraules.get(p);
+            aux._nAparacions++;
+            _paraules.put(p,aux);
+        }
+            
+    }
     
-    public Missatge(String par){
-        paraula = par;
-        nCops = 1;
+    public void printMap() {
+                for (Map.Entry<String, Paraula> entry : _paraules.entrySet()) {
+		    System.out.println(entry.getKey()+ " = " + entry.getValue()._nAparacions);
+		}
+    
     }
 }
