@@ -13,8 +13,55 @@ import java.util.*;
  */
 
 public class FiltreSpam {
-    public static Vector<String> bagOfWords = new Vector<String>();
-
+    
+    public static boolean repetit(String paraula) {
+    boolean conte = false;
+    for(String el : vocabulari) {
+        if(el.equals(paraula)) {
+            conte = true;
+        }
+    }
+    return conte;
+}
+    
+    public static boolean estaASpam(String paraula) {
+      boolean conte = false;
+      for(int i = 0; i< bagOfWordsSPAM.size();i++){
+          if(bagOfWordsSPAM.get(i).paraula.equals(paraula))
+              conte = true;
+      }
+      return conte;
+}
+    
+    public static boolean estaAHam(String paraula) {
+      boolean conte = false;
+      for(int i = 0; i< bagOfWordsHAM.size();i++){
+          if(bagOfWordsHAM.get(i).paraula.equals(paraula))
+              conte = true;
+      }
+      return conte;
+}
+    
+  public static int posicioSPAM(String paraula) {
+      int pos = -1;
+      for(int i = 0; i< bagOfWordsSPAM.size();i++){
+          if(bagOfWordsSPAM.get(i).paraula.equals(paraula))
+              pos = i;
+      }
+      return pos;
+}
+    public static int posicioHAM(String paraula) {
+      int pos = -1;
+      for(int i = 0; i< bagOfWordsHAM.size();i++){
+          if(bagOfWordsHAM.get(i).paraula.equals(paraula))
+              pos = i;
+      }
+      return pos;
+}
+    
+    public static ArrayList<String> vocabulari=new ArrayList<String>();
+    public static ArrayList<Missatge> bagOfWordsSPAM = new ArrayList<Missatge>();
+    public static ArrayList<Missatge> bagOfWordsHAM = new ArrayList<Missatge>();
     public static void main(String[] args) throws IOException {
         String target_dir = "./dirProva";
         File dir = new File(target_dir);
@@ -22,22 +69,25 @@ public class FiltreSpam {
 
         for (File f : files) {
             if(f.isFile()) {
-                BufferedReader inputStream = null;
-                
-                Scanner input=new Scanner(f);
-                input.useDelimiter(" +"); //delimitor is one or more spaces
-                while(input.hasNext()){
-                    bagOfWords.addElement(input.next());
-                    //System.out.println(input.next());
+                Scanner input = new Scanner(f); 
+                 while (input.hasNext()) {
+                    String word  = input.next();
+                    if(!repetit(word)){
+                        vocabulari.add(word);
+                        Missatge m = new Missatge (word);
+                        bagOfWordsSPAM.add(m);
+                        bagOfWordsHAM.add(m);
+                    }
+                    else{
+                        System.out.println("word " + word + "cops " + bagOfWordsSPAM.get(posicioSPAM(word)).nCops);
+                        bagOfWordsSPAM.get(posicioSPAM(word)).nCops++;
+                        //bagOfWordsHAM.get(posicioHAM(word)).nCops++;
+                    }
                 }
             }
         }
-    
-    // Test bagOfWords que guardi be.
-    Enumeration en = bagOfWords.elements();
-    System.out.println("\nElements are:");
-    while(en.hasMoreElements())
-         System.out.print(en.nextElement() + " ");
-    }
-
+     
+        for(int i = 0; i< bagOfWordsSPAM.size();i++)
+            System.out.println(bagOfWordsSPAM.get(i).paraula + " " + bagOfWordsSPAM.get(i).nCops);
+     }
 }
