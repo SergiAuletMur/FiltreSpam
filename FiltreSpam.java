@@ -103,7 +103,8 @@ public class FiltreSpam {
         
         //Calcular estadistiques i mostrar-les (Recopilar els comptadors i mostrar-los)
         mostrarEstadistiques();
-     }
+    }
+    
     private static double calcProbSpams(){//p(SPAM) Respecte les mostres i la K que tenim.
         
         int nMissSpam = 7999; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.

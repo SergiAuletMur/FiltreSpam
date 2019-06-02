@@ -17,7 +17,6 @@ public class Missatge {
     public HashMap<String, Integer> _paraules = new HashMap<String, Integer>();
  
     public Missatge(){
-
     }
  
     public void afegirTotal(String p){
@@ -32,9 +31,8 @@ public class Missatge {
     }
     
     public void printMap() {
-                for (Map.Entry<String, Integer> entry : _paraules.entrySet()) {
-		    System.out.println(entry.getKey()+ " = " + entry.getValue());
-		}
-    
+        for (Map.Entry<String, Integer> entry : _paraules.entrySet()) {
+            System.out.println(entry.getKey()+ " = " + entry.getValue());
+        }
     }
 }
