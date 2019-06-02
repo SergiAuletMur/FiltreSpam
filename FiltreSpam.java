@@ -15,19 +15,20 @@ import java.io.FileNotFoundException;
 
 public class FiltreSpam {
     //----------------------------Atributs-----------------------------------------
-    public static HashSet<String> vocabulari = new HashSet<String>();
-    public static ArrayList<Missatge> bagOfWordsSPAM = new ArrayList<Missatge>();
-    public static ArrayList<Missatge> bagOfWordsHAM = new ArrayList<Missatge>();
-    public static Integer K=1;
-    public static Integer PHI=1;
-    public Integer falsePositive, falseNegative, truePositive, trueNegative=0;
-    
+    public HashSet<String> vocabulari = new HashSet<String>();
+    public ArrayList<Missatge> bagOfWordsSPAM = new ArrayList<Missatge>();
+    public ArrayList<Missatge> bagOfWordsHAM = new ArrayList<Missatge>();
+    public Integer K=1;
+    public Integer PHI=1;
+    public Integer falsePositive, falseNegative, trueNegative, truePositive=0;
+    public Integer numMSpam,numMHam=0;
     //------------------------------------------------------------------------------
     
-    public static void main(String[] args) throws IOException {
+    public void main(String[] args) throws IOException {
         String target_dir = "./SPAM";
         File dir = new File(target_dir);
         File[] files = dir.listFiles();
+        numMSpam =files.length;
         
         //LLEGIM SPAM
         Missatge m = new Missatge();
@@ -49,6 +50,7 @@ public class FiltreSpam {
         String target_dir2 = "./HAM";
         File dir2 = new File(target_dir2);
         File[] files2 = dir2.listFiles();
+        numMHam =files2.length;
 
         //LLEGIM HAM
         Missatge m2 = new Missatge();
@@ -76,13 +78,18 @@ public class FiltreSpam {
         File[] files3 = dir3.listFiles();
         
         //TESTAGEM SPAM
-        double probSpamMissatge=0;
+        double probSpamMissatge, probHamMissatge=0;
         //Testagem fitcher Spam
         for (File f : files3) { // directori TEST Spam. Mirem tots els fitxers a testejar.
             if(f.isFile()) {
                 probSpamMissatge=calcularProbSpam(f);
+                probHamMissatge=calcularProbHam(f);
+                boolean esSpam = probSpamMissatge>(probHamMissatge*PHI);
+                if(!esSpam) falseNegative++;
+                else trueNegative++;
+                //probSpam < probHam*PHI
+                
                 //Comprovar la certesa i actualitzar comptadors. (Metode del PHI amb les probabilitats de spam/missatge i ham/missatge)
-                //metodeActualitzar comptadors (falsePositiu,falseNegatiu,etc)
             }
         }
         
@@ -91,13 +98,18 @@ public class FiltreSpam {
         File[] files4 = dir4.listFiles();
         
         //TESTAGEM HAM
-        double probHamMissatge=0;
+        double probHamMissatge2,probSpamMissatge2=0;
         //Testagem fitcher Ham
         for (File f : files3) { // directori TEST Spam. Mirem tots els fitxers a testejar.
             if(f.isFile()) {
-                probHamMissatge=calcularProbHam(f);
+                probHamMissatge2=calcularProbHam(f);
+                probSpamMissatge2=calcularProbSpam(f);
+                boolean esSpam = probSpamMissatge2>(probHamMissatge2*PHI);
+                if(esSpam) falsePositive++;
+                else truePositive++;
+                //probSpam < probHam*PHI
+                
                 //Comprovar la certesa i actualitzar comptadors.(Metode del PHI amb les probabilitats de spam/missatge i ham/missatge)
-                //metodeActualitzar comptadors (falsePositiu,falseNegatiu,etc)
             }
         }
         
@@ -105,10 +117,10 @@ public class FiltreSpam {
         mostrarEstadistiques();
     }
     
-    private static double calcProbSpams(){//p(SPAM) Respecte les mostres i la K que tenim.
+    private double calcProbSpams(){//p(SPAM) Respecte les mostres i la K que tenim.
         
-        int nMissSpam = 7999; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
-        int nMissHam = 7999; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
+        int nMissSpam = numMSpam; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
+        int nMissHam = numMHam; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
         
         double pbSpam = ((nMissSpam+K)/(nMissSpam+nMissHam+K*2));
         //p(spam)= (nMissatgesSpam+k/totalMissatges+(k*2))
@@ -116,10 +128,10 @@ public class FiltreSpam {
         return pbSpam;
     }
 
-    private static double calcProbHams(){//p(HAM) Respecte les mostres i la K que tenim.
+    private double calcProbHams(){//p(HAM) Respecte les mostres i la K que tenim.
         
-        int nMissSpam = 7999; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
-        int nMissHam = 7999; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
+        int nMissSpam = numMSpam; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
+        int nMissHam = numMHam; //7999 ja que en aquest cas analitzem sobre els 7999 primers missatges.
         
         double pbHam = ((nMissHam+K)/(nMissHam+nMissSpam+K*2));
         //p(ham)= (nMissatgesHam+k/totalMissatges+(k*2))
@@ -127,7 +139,7 @@ public class FiltreSpam {
         return pbHam;
     }
     
-    private static Double calcularProbSpam(File f) throws FileNotFoundException{
+    private Double calcularProbSpam(File f) throws FileNotFoundException{
         double prob=0;
         if(f.isFile()){
             Scanner input = new Scanner(f);  
@@ -144,7 +156,7 @@ public class FiltreSpam {
         return prob;
     }
     
-    private static Double calcularProbHam(File f) throws FileNotFoundException{
+    private Double calcularProbHam(File f) throws FileNotFoundException{
         double prob=0;
         if(f.isFile()){
             Scanner input = new Scanner(f);  
@@ -161,7 +173,7 @@ public class FiltreSpam {
         return prob;
     }
     
-    private static Double probSpam(ArrayList<String> missatge){
+    private Double probSpam(ArrayList<String> missatge){
         double prob=0;//prob Spam del missatge enter
         Missatge aux=bagOfWordsSPAM.get(0);
         for(int i=0; i<missatge.size(); i++){
@@ -174,7 +186,7 @@ public class FiltreSpam {
             if(aux._paraules.get(paraula)!=null){
                 nAparicions=aux._paraules.get(paraula);
             }
-            int nParaulesSpam = aux._paraules.size();
+            int nParaulesSpam = aux.comptadorParaules;
             
             if(nAparicions!=-1){//si em trobat la paraula fem calcul, sino la ignorem.
                 double result = ((nAparicions+K)/(nParaulesSpam+vocabulari.size()));
@@ -185,7 +197,7 @@ public class FiltreSpam {
         return prob;
     }
     
-    private static Double probHam(ArrayList<String> missatge){
+    private Double probHam(ArrayList<String> missatge){
         double prob=0;//prob Spam del missatge enter
         Missatge aux=bagOfWordsHAM.get(0);
         for(int i=0; i<missatge.size(); i++){
@@ -198,7 +210,7 @@ public class FiltreSpam {
             if(aux._paraules.get(paraula)!=null){
                 nAparicions=aux._paraules.get(paraula);
             }
-            int nParaulesHam = aux._paraules.size();
+            int nParaulesHam = aux.comptadorParaules;
             
             if(nAparicions!=-1){//si em trobat la paraula fem calcul, sino la ignorem.
                 double result = ((nAparicions+K)/(nParaulesHam+vocabulari.size()));
@@ -209,7 +221,24 @@ public class FiltreSpam {
         return prob;
     }
     
-    private static void mostrarEstadistiques(){
+    private void mostrarEstadistiques(){
+        int nMissatgesTotal=numMSpam+numMHam; //(7999 de Ham i 7999 de Spam)
+        double werr=(50*falsePositive+falseNegative)/(50*numMHam+numMSpam);
+        double werr_base= numMSpam/(50*numMHam+numMSpam);
+        double tcr = werr_base/werr;
+        
+        double accuracy=((trueNegative+truePositive)/nMissatgesTotal)*100;
+        double percPosi=(falsePositive/(truePositive+falsePositive+trueNegative+falseNegative))*100;
+        double percNega=(falseNegative/(truePositive+falsePositive+trueNegative+falseNegative))*100;
+        
+        System.out.println("-------------------- RESULTATS ---------------------");
+        System.out.println("Nombre de missatges:          " + nMissatgesTotal + "     (" + numMHam + "H," + numMSpam + "S)" );
+        System.out.println("Accuracy (%):                 " + accuracy );
+        System.out.println("False positive rate (%):      " + percPosi +     "(" + falsePositive + ")");
+        System.out.println("False negative rate (%):      " + percNega +     "(" + falseNegative + ")");
+        System.out.println("Total cost ratio (l = 50):    " + tcr );
+        System.out.println("----------------------------------------------------");
+        
         
     }	
 }

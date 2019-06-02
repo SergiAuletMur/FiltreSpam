@@ -15,11 +15,13 @@ import java.util.*;
 public class Missatge {
     //Conte el map amb les paraules de HAM/SPAM i les aparicions d'aquestes en aquest grup.
     public HashMap<String, Integer> _paraules = new HashMap<String, Integer>();
+    public Integer comptadorParaules=0;
  
     public Missatge(){
     }
  
     public void afegirTotal(String p){
+        
         if(!_paraules.containsKey(p)){
             _paraules.put(p,1);
         }
@@ -28,6 +30,7 @@ public class Missatge {
             aux=aux+1;
             _paraules.put(p,aux);
         } 
+        comptadorParaules++;
     }
     
     public void printMap() {
